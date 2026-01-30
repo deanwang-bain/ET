@@ -63,6 +63,7 @@ def score_expert(criteria, expert):
     levels = set(criteria.get("levels") or [])
     budget = criteria.get("budget") or 500
     free_text = criteria.get("free_text") or ""
+    profile_text = criteria.get("profile_text") or ""
 
     score = 0
     reasons = []
@@ -101,6 +102,16 @@ def score_expert(criteria, expert):
     if cred_hits:
         score += 10
         reasons.append(f"Credential signal: {', '.join(sorted(set(cred_hits))[:5])}.")
+
+    profile_tokens = set(_tokenize(profile_text))
+    if profile_tokens:
+        profile_overlap = profile_tokens.intersection(expert_tokens)
+        profile_score = min(10, 10 * (len(profile_overlap) / max(1, len(profile_tokens))))
+        score += profile_score
+        if profile_overlap:
+            reasons.append(
+                f"Profile match: {', '.join(sorted(list(profile_overlap))[:6])}."
+            )
 
     rate = expert.get("ratePerHour", 0)
     if rate > budget:

@@ -1,5 +1,6 @@
 import json
 import hashlib
+import re
 from datetime import date, datetime
 
 import pandas as pd
@@ -38,6 +39,8 @@ def _init_state():
             "free_text": "",
             "budget": 500,
             "geography": "Any",
+            "profile_text": "",
+            "linkedin_url": "",
         },
         "criteria_signature": None,
         "search_results": [],
@@ -153,6 +156,39 @@ NETWORKS = [
     "CIRCLE",
 ]
 
+PROFILE_STOPWORDS = {
+    "the",
+    "and",
+    "or",
+    "to",
+    "for",
+    "with",
+    "a",
+    "an",
+    "of",
+    "in",
+    "on",
+    "by",
+    "is",
+    "are",
+    "from",
+    "that",
+    "this",
+    "we",
+    "our",
+    "their",
+    "they",
+    "as",
+    "at",
+    "be",
+    "it",
+    "into",
+    "across",
+    "within",
+    "around",
+    "over",
+}
+
 
 def _parse_date(value, fallback):
     if isinstance(value, date):
@@ -164,6 +200,17 @@ def _parse_date(value, fallback):
             return fallback
     return fallback
 
+
+def _summarize_profile_text(text, max_terms=8):
+    if not text:
+        return []
+    tokens = re.findall(r"[a-zA-Z0-9]+", text.lower())
+    tokens = [t for t in tokens if t not in PROFILE_STOPWORDS and len(t) > 2]
+    counts = {}
+    for token in tokens:
+        counts[token] = counts.get(token, 0) + 1
+    ranked = sorted(counts.items(), key=lambda item: item[1], reverse=True)
+    return [term for term, _ in ranked[:max_terms]]
 
 def _suggest_template_defaults(case_details):
     industry = case_details.get("industry") or ""
@@ -310,6 +357,9 @@ def _draft_agency_email(criteria, case_details, networks, ranked):
     free_text = criteria.get("free_text") or "No additional context provided."
     budget = criteria.get("budget")
     geography = criteria.get("geography")
+    profile_text = criteria.get("profile_text") or ""
+    linkedin_url = criteria.get("linkedin_url") or ""
+    profile_terms = _summarize_profile_text(profile_text)
     template = _load_email_template()
     filled = _fill_email_template(template, case_details, criteria) if template else ""
     top_experts = ranked[:5] if ranked else []
@@ -334,6 +384,8 @@ def _draft_agency_email(criteria, case_details, networks, ranked):
             f"Template:\n{template}\n\n"
             f"Industries: {industries}\nFunctions: {functions}\nLevels: {levels}\n"
             f"Budget: ${budget}/hr\nGeography: {geography}\nRequest: {free_text}\n"
+            f"LinkedIn URL: {linkedin_url}\n"
+            f"Profile keywords: {profile_terms}\n"
             f"Selected networks: {', '.join(networks) or 'All'}\n"
             f"Case details: {json.dumps(case_details, sort_keys=True)}\n"
             f"Top experts: {json.dumps(expert_summaries, ensure_ascii=False)}\n"
@@ -343,10 +395,22 @@ def _draft_agency_email(criteria, case_details, networks, ranked):
             return text
 
     if filled:
+        extra = []
+        if linkedin_url:
+            extra.append(f"LinkedIn URL: {linkedin_url}")
+        if profile_terms:
+            extra.append(f"Profile keywords: {', '.join(profile_terms)}")
+        extra_block = ""
+        if extra:
+            extra_block = "\n\nProfile signal\n" + "\n".join(f"- {item}" for item in extra)
         if expert_summaries:
-            return f"{filled}\n\nProposed Expert Shortlist (ET draft)\n" + "\n".join(
-                expert_summaries
+            return (
+                f"{filled}"
+                f"{extra_block}\n\nProposed Expert Shortlist (ET draft)\n"
+                + "\n".join(expert_summaries)
             )
+        if extra_block:
+            return f"{filled}{extra_block}"
         return filled
 
     return f"Background / request\n{free_text}\n\n(Targeted populations and screening questions pending.)"
@@ -816,6 +880,29 @@ with tab_search:
             height=120,
         )
 
+        st.markdown("**Expert profile matching (optional)**")
+        cv_file = st.file_uploader(
+            "Upload CV (TXT/MD only)",
+            type=["txt", "md"],
+            help="Upload a text CV to help match similar expert backgrounds.",
+        )
+        resume_text = ""
+        if cv_file is not None:
+            try:
+                resume_text = cv_file.read().decode("utf-8")
+            except UnicodeDecodeError:
+                st.warning("Unable to read CV file. Please upload a UTF-8 text file.")
+        linkedin_url = st.text_input(
+            "LinkedIn profile link (optional)",
+            value=st.session_state["criteria"].get("linkedin_url", ""),
+        )
+        profile_notes = st.text_area(
+            "Profile notes or pasted LinkedIn summary (optional)",
+            value=st.session_state["criteria"].get("profile_text", ""),
+            height=100,
+        )
+        profile_text = "\n".join([resume_text, profile_notes]).strip()
+
         if st.button("Find experts", type="primary"):
             criteria = {
                 "industries": industries,
@@ -824,6 +911,8 @@ with tab_search:
                 "free_text": free_text.strip(),
                 "budget": budget,
                 "geography": geography,
+                "profile_text": profile_text,
+                "linkedin_url": linkedin_url.strip(),
             }
             st.session_state["criteria"] = criteria
             st.session_state["criteria_signature"] = _criteria_signature(criteria)
