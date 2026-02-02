@@ -74,6 +74,9 @@ def score_expert(criteria, expert):
         score += industry_score
         if overlap:
             reasons.append(f"Industry match: {', '.join(sorted(overlap))}.")
+        else:
+            score -= 12
+            reasons.append("Industry mismatch: no overlap with requested industries.")
 
     if functions:
         overlap = functions.intersection(expert.get("functionTags", []))

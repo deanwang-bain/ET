@@ -156,6 +156,52 @@ NETWORKS = [
     "CIRCLE",
 ]
 
+AGENCY_TEMPLATE_BRAND = """BRAND - EXPERTS
+
+{expert_name} - Candidate
+
+Former {expert_headline}
+
+BIOGRAPHY
+Geo: {geo}
+
+Credit: TBD
+
+{bio_paragraph}
+
+AVAILABILITY (WIB)
+{availability}
+
+SCREENING QUESTIONS
+1. {screen_q1}
+
+{screen_a1}
+
+2. {screen_q2}
+
+{screen_a2}
+
+3. {screen_q3}
+
+{screen_a3}
+"""
+
+AGENCY_TEMPLATE_SHORT = """Hello {contact_name},
+
+Jumping in for the team here. We have screened {expert_name}, former {expert_headline}, who is {availability_short}. Would you like to book them?
+
+Also, checking in on your timeline for calls and any new priorities.
+
+Profile: {expert_name} | {expert_headline}
+Relevant experience: {relevant_experience}
+Screened: Yes
+
+Top highlights:
+- {highlight_1}
+- {highlight_2}
+- {highlight_3}
+"""
+
 PROFILE_STOPWORDS = {
     "the",
     "and",
@@ -211,6 +257,59 @@ def _summarize_profile_text(text, max_terms=8):
         counts[token] = counts.get(token, 0) + 1
     ranked = sorted(counts.items(), key=lambda item: item[1], reverse=True)
     return [term for term, _ in ranked[:max_terms]]
+
+
+def _render_agency_email_body(
+    template_style,
+    expert,
+    case_details,
+    contact_name="Team",
+):
+    screen_q1 = case_details.get("screening_1") or "Are you familiar with this market?"
+    screen_q2 = case_details.get("screening_2") or "Can you speak to major competitors?"
+    screen_q3 = case_details.get("screening_3") or "Can you discuss recent shifts in the industry?"
+    bio_paragraph = (
+        f"{expert['name']} is a former {expert['headline']} with {expert['yearsExperience']} "
+        "years of experience. Their expertise spans "
+        f"{', '.join(expert.get('topicKeywords', []))}."
+    )
+    availability = (
+        expert.get("availability")
+        or "This expert has not provided availability. We can expedite upon request."
+    )
+    availability_short = (
+        "available for a call this week" if "Available" in availability else "pending availability"
+    )
+    relevant_experience = "; ".join(expert.get("industryTags", [])) or expert.get("headline")
+    highlight_1 = f"Led initiatives in {', '.join(expert.get('functionTags', []))}."
+    highlight_2 = f"Experienced across {', '.join(expert.get('industryTags', []))}."
+    highlight_3 = f"Languages: {', '.join(expert.get('languages', []))}."
+
+    if template_style == "brand":
+        return AGENCY_TEMPLATE_BRAND.format(
+            expert_name=expert["name"],
+            expert_headline=expert["headline"],
+            geo=expert.get("geography", "N/A"),
+            bio_paragraph=bio_paragraph,
+            availability=availability,
+            screen_q1=screen_q1,
+            screen_a1="I can cover these on call.",
+            screen_q2=screen_q2,
+            screen_a2="Can cover this briefly.",
+            screen_q3=screen_q3,
+            screen_a3="Happy to provide more detail on call.",
+        )
+
+    return AGENCY_TEMPLATE_SHORT.format(
+        contact_name=contact_name,
+        expert_name=expert["name"],
+        expert_headline=expert["headline"],
+        availability_short=availability_short,
+        relevant_experience=relevant_experience,
+        highlight_1=highlight_1,
+        highlight_2=highlight_2,
+        highlight_3=highlight_3,
+    )
 
 def _suggest_template_defaults(case_details):
     industry = case_details.get("industry") or ""
@@ -416,15 +515,19 @@ def _draft_agency_email(criteria, case_details, networks, ranked):
     return f"Background / request\n{free_text}\n\n(Targeted populations and screening questions pending.)"
 
 
-def _simulate_agency_responses(criteria, experts, ranked, networks):
+def _simulate_agency_responses(criteria, case_details, experts, ranked, networks):
     if _llm_enabled():
         system_prompt = "You are an expert-network agency responding to a consulting request."
         user_prompt = (
-            "Simulate emails from the selected agencies. Return JSON with key 'agencies', an array of objects "
+            "Simulate emails from the selected agencies using one of the two provided templates. "
+            "Return JSON with key 'agencies', an array of objects "
             "with fields: agency_name, email_subject, email_body, recommended_experts (array). "
             "Each recommended_expert must include id, name, fit_reason, availability, rate. "
             "Use only the experts provided below by id/name.\n\n"
+            f"Template A:\n{AGENCY_TEMPLATE_BRAND}\n\n"
+            f"Template B:\n{AGENCY_TEMPLATE_SHORT}\n\n"
             f"Request criteria: {json.dumps(criteria, sort_keys=True)}\n"
+            f"Case details: {json.dumps(case_details, sort_keys=True)}\n"
             f"Selected networks: {', '.join(networks) or 'All'}\n"
             f"Experts: {json.dumps(_format_expert_list(experts), ensure_ascii=False)}\n"
         )
@@ -438,11 +541,15 @@ def _simulate_agency_responses(criteria, experts, ranked, networks):
     for idx, network in enumerate(selected):
         if idx * 2 + 1 >= len(top):
             break
+        style = "brand" if idx % 2 == 0 else "short"
+        email_body = _render_agency_email_body(
+            style, top[idx * 2]["expert"], case_details
+        )
         agencies.append(
             {
                 "agency_name": network,
                 "email_subject": "Re: Expert recommendations",
-                "email_body": "Sharing candidates aligned to your request. Experts are briefed on compliance boundaries.",
+                "email_body": email_body,
                 "recommended_experts": [
                     {
                         "id": top[idx * 2]["expert"]["id"],
@@ -979,6 +1086,7 @@ with tab_search:
                 )
             agencies = _simulate_agency_responses(
                 st.session_state["criteria"],
+                st.session_state["case_details"],
                 EXPERTS,
                 st.session_state["search_results"],
                 st.session_state["selected_networks"],
@@ -1178,6 +1286,8 @@ with tab_script:
                 user_prompt = (
                     "Create an interview script with the exact structure specified below. "
                     "Use a professional tone and keep it concise.\n\n"
+                    "STRICT SCOPE: Only reference the industries/functions/levels provided. "
+                    "Do not introduce other industries. If lists are empty, use 'General'.\n\n"
                     "Structure:\n"
                     "1) Title + Interview objective (3-5 bullets)\n"
                     "2) Filtering / Qualification (first 8-10 min) with 6-10 questions, red flags, follow-ups\n"
@@ -1216,6 +1326,8 @@ with tab_script:
                 user_prompt = (
                     "Regenerate the script with the same structure, but apply the refinement request. "
                     "Keep the sections and make adjustments in emphasis.\n\n"
+                    "STRICT SCOPE: Only reference the industries/functions/levels provided. "
+                    "Do not introduce other industries.\n\n"
                     f"Refinement: {refine_script}\n"
                     f"Criteria: {json.dumps(criteria, sort_keys=True)}\n"
                     f"Expert: {expert['name']} | {expert['headline']} | {expert['expertiseSummary']}\n"
@@ -1264,6 +1376,8 @@ with tab_script:
                     "Generate a realistic transcript that follows the script. "
                     "Include consultant questions, expert answers, occasional clarifications, "
                     "and a few illustrative numbers. Avoid confidential client info or MNPI.\n\n"
+                    "STRICT SCOPE: Keep references aligned to the criteria industries/functions. "
+                    "Do not introduce unrelated industries.\n\n"
                     f"Script:\n{st.session_state.get('script_text', '')}\n\n"
                     f"Expert: {expert['name']} | {expert['headline']}\n"
                     f"Compliance: {expert['complianceFlags']}\n"
@@ -1299,6 +1413,8 @@ with tab_script:
                 user_prompt = (
                     "Regenerate the transcript based on the refinement request. "
                     "Keep compliance boundaries and include illustrative numbers.\n\n"
+                    "STRICT SCOPE: Keep references aligned to the criteria industries/functions. "
+                    "Do not introduce unrelated industries.\n\n"
                     f"Refinement: {refine_transcript}\n"
                     f"Script:\n{st.session_state.get('script_text', '')}\n\n"
                     f"Expert: {expert['name']} | {expert['headline']}\n"
