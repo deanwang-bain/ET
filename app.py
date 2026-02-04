@@ -25,7 +25,9 @@ st.markdown(
     <style>
     .stButton > button {
         color: #CB2026;
+        background-color: #ffffff;
         border-color: #CB2026;
+        border-width: 2px;
     }
     </style>
     """,
@@ -278,6 +280,17 @@ def _summarize_profile_text(text, max_terms=8):
         counts[token] = counts.get(token, 0) + 1
     ranked = sorted(counts.items(), key=lambda item: item[1], reverse=True)
     return [term for term, _ in ranked[:max_terms]]
+
+
+def _ensure_cid_cleared(top_ranked, full_ranked):
+    if not top_ranked:
+        return top_ranked
+    if any(item["expert"].get("cidCleared") for item in top_ranked):
+        return top_ranked
+    for item in full_ranked:
+        if item["expert"].get("cidCleared") and item not in top_ranked:
+            return top_ranked[:-1] + [item]
+    return top_ranked
 
 
 def _render_agency_email_body(
@@ -1194,8 +1207,12 @@ with tab_search:
 
             st.markdown("---")
             st.subheader("Top 3 selectable experts")
+            top3 = _ensure_cid_cleared(
+                st.session_state["agency_ranked"][:3],
+                st.session_state["agency_ranked"],
+            )
             cols = st.columns(3)
-            for idx, item in enumerate(st.session_state["agency_ranked"][:3]):
+            for idx, item in enumerate(top3):
                 expert = item["expert"]
                 with cols[idx]:
                     with st.container():
@@ -1204,7 +1221,8 @@ with tab_search:
             st.markdown("---")
             st.subheader("Select expert")
             options = [
-                f"{item['expert']['id']} - {item['expert']['name']}"
+                f"{item['expert']['id']} - {item['expert']['name']} "
+                f"({'CID cleared' if item['expert'].get('cidCleared') else 'Clear CID'})"
                 for item in st.session_state["agency_ranked"]
             ]
             selected_label = st.radio(
@@ -1225,7 +1243,7 @@ with tab_search:
                         ]
                         _persist_case()
                         st.success(
-                            f"Selected {item['expert']['name']}. Proceed to Tab 2."
+                            f"Selected {item['expert']['name']}. Proceed to Interview Script + Transcript."
                         )
                         break
 
