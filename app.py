@@ -20,6 +20,17 @@ from scoring import rank_experts
 
 
 st.set_page_config(page_title="Expert Tool (ET)", layout="wide")
+st.markdown(
+    """
+    <style>
+    .stButton > button {
+        color: #CB2026;
+        border-color: #CB2026;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 
 def _criteria_signature(criteria):
@@ -103,6 +114,16 @@ def _render_expert_card(expert, score, reasons):
     st.markdown(f"- **Topic keywords:** {', '.join(expert.get('topicKeywords', []))}")
     st.markdown(f"- **Availability:** {expert['availability']}")
     st.markdown(f"- **Compliance:** {', '.join(expert.get('complianceFlags', []))}")
+    if expert.get("cidCleared"):
+        st.markdown(
+            "<span style='color:#1a7f37;font-weight:600;'>CID cleared</span>",
+            unsafe_allow_html=True,
+        )
+    else:
+        st.markdown(
+            "<a href='https://conflictid.bain.com/' style='color:#CB2026;font-weight:600;'>Clear CID</a>",
+            unsafe_allow_html=True,
+        )
     st.markdown(f"**Score:** {score}")
     if reasons:
         st.markdown("**Why this match:**")

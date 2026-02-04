@@ -67,6 +67,7 @@ EXPERTS = [
         "expertiseSummary": "Led pricing strategy across devices and diagnostics with focus on value-based models.",
         "topicKeywords": ["pricing", "value-based", "governance", "portfolio", "rebate"],
         "availability": "Available in 2 weeks",
+        "cidCleared": True,
         "complianceFlags": ["No MNPI", "No confidential client info"],
     },
     {
@@ -89,6 +90,7 @@ EXPERTS = [
         "expertiseSummary": "Built omni-channel fulfillment and optimized last-mile for high-volume retail.",
         "topicKeywords": ["fulfillment", "automation", "last-mile", "inventory", "cost-to-serve"],
         "availability": "Available next week",
+        "cidCleared": False,
         "complianceFlags": ["No MNPI", "No competitor-sensitive topics"],
     },
     {
@@ -111,6 +113,7 @@ EXPERTS = [
         "expertiseSummary": "Led AI risk models and data governance in regulated FinTech environments.",
         "topicKeywords": ["risk", "model governance", "ml", "regulation", "data quality"],
         "availability": "Limited availability",
+        "cidCleared": True,
         "complianceFlags": ["No MNPI", "No confidential client info"],
     },
     {
@@ -133,6 +136,7 @@ EXPERTS = [
         "expertiseSummary": "Scaled enterprise SaaS revenue and built partner ecosystems.",
         "topicKeywords": ["gtm", "enterprise", "partners", "sales", "plg"],
         "availability": "Available in 3 weeks",
+        "cidCleared": False,
         "complianceFlags": ["No confidential client info"],
     },
     {
@@ -155,6 +159,7 @@ EXPERTS = [
         "expertiseSummary": "Developed capital allocation strategies for energy transition portfolios.",
         "topicKeywords": ["renewables", "hydrogen", "capex", "portfolio", "policy"],
         "availability": "Available next week",
+        "cidCleared": True,
         "complianceFlags": ["No MNPI", "No competitor-sensitive topics"],
     },
     {
@@ -177,6 +182,7 @@ EXPERTS = [
         "expertiseSummary": "Improved airline operational reliability and passenger experience.",
         "topicKeywords": ["irrops", "turnaround", "nps", "on-time", "capacity planning"],
         "availability": "Available in 2 weeks",
+        "cidCleared": False,
         "complianceFlags": ["No confidential client info"],
     },
     {
@@ -199,6 +205,7 @@ EXPERTS = [
         "expertiseSummary": "Led portfolio and margin transformation in consumer goods.",
         "topicKeywords": ["margin", "portfolio", "pricing", "cost takeout", "mix"],
         "availability": "Limited availability",
+        "cidCleared": True,
         "complianceFlags": ["No MNPI", "No confidential client info"],
     },
     {
@@ -221,6 +228,7 @@ EXPERTS = [
         "expertiseSummary": "Scaled consumer subscription products and retention programs.",
         "topicKeywords": ["retention", "subscription", "onboarding", "activation", "ltv"],
         "availability": "Available next week",
+        "cidCleared": False,
         "complianceFlags": ["No confidential client info"],
     },
     {
@@ -243,6 +251,7 @@ EXPERTS = [
         "expertiseSummary": "Led supplier risk and network redesign across automotive plants.",
         "topicKeywords": ["supplier risk", "lean", "network", "inventory", "sourcing"],
         "availability": "Available in 3 weeks",
+        "cidCleared": True,
         "complianceFlags": ["No MNPI", "No competitor-sensitive topics"],
     },
     {
@@ -265,6 +274,7 @@ EXPERTS = [
         "expertiseSummary": "Modernized government service delivery with agile implementation.",
         "topicKeywords": ["digital", "citizen services", "agile", "modernization", "workflow"],
         "availability": "Available next week",
+        "cidCleared": False,
         "complianceFlags": ["No confidential client info"],
     },
     {
@@ -287,6 +297,7 @@ EXPERTS = [
         "expertiseSummary": "Built compliance automation and model risk frameworks for insurers.",
         "topicKeywords": ["compliance", "regtech", "model risk", "reporting", "audit"],
         "availability": "Available in 2 weeks",
+        "cidCleared": True,
         "complianceFlags": ["No MNPI", "No confidential client info"],
     },
     {
@@ -309,6 +320,7 @@ EXPERTS = [
         "expertiseSummary": "Drove ARPU uplift and churn reduction in mature telecom markets.",
         "topicKeywords": ["arpu", "churn", "bundling", "campaigns", "retention"],
         "availability": "Available in 4 weeks",
+        "cidCleared": False,
         "complianceFlags": ["No confidential client info"],
     },
     {
@@ -331,6 +343,7 @@ EXPERTS = [
         "expertiseSummary": "Led strategic sourcing and should-cost modeling in heavy industry.",
         "topicKeywords": ["sourcing", "should-cost", "supplier", "negotiation", "commodities"],
         "availability": "Available next week",
+        "cidCleared": True,
         "complianceFlags": ["No MNPI"],
     },
     {
@@ -353,6 +366,7 @@ EXPERTS = [
         "expertiseSummary": "Scaled consumer FinTech growth through funnel and product-led tactics.",
         "topicKeywords": ["growth", "funnels", "acquisition", "activation", "pricing"],
         "availability": "Available in 2 weeks",
+        "cidCleared": False,
         "complianceFlags": ["No confidential client info"],
     },
     {
@@ -375,6 +389,7 @@ EXPERTS = [
         "expertiseSummary": "Improved patient flow and clinical throughput in large hospitals.",
         "topicKeywords": ["patient flow", "throughput", "bed management", "lean", "access"],
         "availability": "Available next week",
+        "cidCleared": True,
         "complianceFlags": ["No confidential client info"],
     },
     {
@@ -397,6 +412,7 @@ EXPERTS = [
         "expertiseSummary": "Led retail modernization and data platform programs.",
         "topicKeywords": ["cloud", "pos", "cdp", "omnichannel", "data platform"],
         "availability": "Available in 3 weeks",
+        "cidCleared": False,
         "complianceFlags": ["No MNPI", "No confidential client info"],
     },
     {
@@ -419,6 +435,7 @@ EXPERTS = [
         "expertiseSummary": "Built repeatable sales motions and quota models for B2B telecom.",
         "topicKeywords": ["sales motion", "quota", "pipeline", "enablement", "coverage"],
         "availability": "Available next week",
+        "cidCleared": True,
         "complianceFlags": ["No confidential client info"],
     },
     {
@@ -441,6 +458,7 @@ EXPERTS = [
         "expertiseSummary": "Built analytics platforms for routing and ETA accuracy.",
         "topicKeywords": ["routing", "eta", "forecasting", "optimization", "cost"],
         "availability": "Available next week",
+        "cidCleared": False,
         "complianceFlags": ["No confidential client info"],
     },
     {
@@ -463,6 +481,7 @@ EXPERTS = [
         "expertiseSummary": "Led category growth and consumer insight programs in CPG.",
         "topicKeywords": ["consumer insights", "category", "brand", "pricing", "channels"],
         "availability": "Available in 2 weeks",
+        "cidCleared": True,
         "complianceFlags": ["No confidential client info"],
     },
     {
@@ -485,6 +504,7 @@ EXPERTS = [
         "expertiseSummary": "Built SaaS pricing and unit economics frameworks.",
         "topicKeywords": ["unit economics", "usage-based", "forecasting", "ltv", "cac"],
         "availability": "Available next week",
+        "cidCleared": False,
         "complianceFlags": ["No confidential client info"],
     },
     {
@@ -507,6 +527,7 @@ EXPERTS = [
         "expertiseSummary": "Developed AI-driven clinical data products and evidence platforms.",
         "topicKeywords": ["clinical data", "nlp", "real-world evidence", "ai", "product"],
         "availability": "Available in 3 weeks",
+        "cidCleared": True,
         "complianceFlags": ["No MNPI", "No confidential client info"],
     },
     {
@@ -529,6 +550,7 @@ EXPERTS = [
         "expertiseSummary": "Led pricing and distribution strategy in P&C insurance.",
         "topicKeywords": ["insurance", "pricing", "distribution", "innovation", "telematics"],
         "availability": "Available in 2 weeks",
+        "cidCleared": False,
         "complianceFlags": ["No confidential client info"],
     },
     {
@@ -551,6 +573,7 @@ EXPERTS = [
         "expertiseSummary": "Scaled EdTech adoption and product launches for schools.",
         "topicKeywords": ["adoption", "rollout", "teacher enablement", "gtm", "product"],
         "availability": "Available next week",
+        "cidCleared": True,
         "complianceFlags": ["No confidential client info"],
     },
     {
@@ -573,6 +596,7 @@ EXPERTS = [
         "expertiseSummary": "Designed incentive and dealer margin strategies in automotive.",
         "topicKeywords": ["incentives", "dealer", "pricing", "margin", "channel"],
         "availability": "Available in 2 weeks",
+        "cidCleared": False,
         "complianceFlags": ["No MNPI"],
     },
     {
@@ -595,6 +619,7 @@ EXPERTS = [
         "expertiseSummary": "Led workforce planning and HR digital modernization.",
         "topicKeywords": ["workforce", "hris", "planning", "change", "capability"],
         "availability": "Available in 3 weeks",
+        "cidCleared": True,
         "complianceFlags": ["No confidential client info"],
     },
 ]
