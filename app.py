@@ -1220,15 +1220,39 @@ with tab_search:
 
             st.markdown("---")
             st.subheader("Select expert")
-            options = [
-                f"{item['expert']['id']} - {item['expert']['name']} "
-                f"({'CID cleared' if item['expert'].get('cidCleared') else 'Clear CID'})"
+            table_rows = []
+            for item in st.session_state["agency_ranked"]:
+                expert = item["expert"]
+                cid_cell = (
+                    "<span style='color:#1a7f37;font-weight:600;'>CID cleared</span>"
+                    if expert.get("cidCleared")
+                    else "<a href='https://conflictid.bain.com/' style='color:#CB2026;font-weight:600;'>Clear CID</a>"
+                )
+                table_rows.append(
+                    f"<tr><td>{expert['id']}</td><td>{expert['name']}</td>"
+                    f"<td>{expert['headline']}</td><td>{cid_cell}</td></tr>"
+                )
+            table_html = (
+                "<table style='width:100%;border-collapse:collapse;'>"
+                "<thead><tr>"
+                "<th style='text-align:left;border-bottom:1px solid #ddd;padding:6px;'>ID</th>"
+                "<th style='text-align:left;border-bottom:1px solid #ddd;padding:6px;'>Expert</th>"
+                "<th style='text-align:left;border-bottom:1px solid #ddd;padding:6px;'>Headline</th>"
+                "<th style='text-align:left;border-bottom:1px solid #ddd;padding:6px;'>CID</th>"
+                "</tr></thead><tbody>"
+                + "".join(table_rows)
+                + "</tbody></table>"
+            )
+            st.markdown(table_html, unsafe_allow_html=True)
+
+            select_options = [
+                f"{item['expert']['id']} - {item['expert']['name']}"
                 for item in st.session_state["agency_ranked"]
             ]
-            selected_label = st.radio(
+            selected_label = st.selectbox(
                 "Select one expert by ID",
-                options=options,
-                index=0 if options else None,
+                options=select_options,
+                index=0 if select_options else None,
             )
             selected_id = selected_label.split(" - ")[0] if selected_label else None
 
